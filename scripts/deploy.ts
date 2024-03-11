@@ -1,19 +1,34 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  // if (process.env.RESOURCE_TOKEN_ADDRESS) {
-  const Wilderness = await ethers.getContractFactory("Wilderness");
-  const wilderness = await Wilderness.deploy();
+  if (
+    process.env.RESOURCE_TOKEN_ADDRESS &&
+    process.env.AVATAR_ADDRESS &&
+    process.env.STICK_ID &&
+    process.env.STONE_ID
+  ) {
+    console.log("Deploying Wilderness... contract-location");
+    // const Wilderness = await ethers.getContractFactory("Wilderness");
+    const wilderness = await ethers.deployContract("Wilderness", [
+      process.env.AVATAR_ADDRESS,
+      process.env.RESOURCE_TOKEN_ADDRESS,
+      process.env.STICK_ID,
+      process.env.STONE_ID,
+    ]);
 
-  await wilderness.deployed();
+    console.log("waiting for deployment...");
+    await wilderness.waitForDeployment();
+    console.log("deployed");
 
-  // add Wilderness to minter_role on resource_token
-  // wilderness.address
+    // add Wilderness to minter_role on resource_token
+    // wilderness.address
 
-  console.log("Wilderness deployed to:", wilderness.address);
-  // } else {
-  //   console.log("RESOURCE_TOKEN_ADDRESS is not set in .env file");
-  // }
+    console.log("Wilderness deployed to:", wilderness.target);
+  } else {
+    console.log(
+      "Must set RESOURCE_TOKEN_ADDRESS AVATAR_ADDRESS STICK_ID STONE_ID in .env file"
+    );
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
