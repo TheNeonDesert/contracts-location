@@ -12,9 +12,13 @@ contract Wilderness is ReentrancyGuard {
 
     uint256 public sticksId;
     uint256 public stonesId;
+    uint256 public plantFiberId;
+    uint256 public appleId;
     uint256 public constant DURATION = 1 minutes;
     uint256 public constant STICKS_AMOUNT = 10;
     uint256 public constant STONES_AMOUNT = 8;
+    uint256 public constant PLANTFIBER_AMOUNT = 4;
+    uint256 public constant APPLE_AMOUNT = 2;
 
     // owner => avatarId => startTime
     mapping(address => mapping(uint256 => uint256)) public sessions;
@@ -34,62 +38,26 @@ contract Wilderness is ReentrancyGuard {
         address _avatarAddress,
         address _resourceTokenAddress,
         uint256 _sticksId,
-        uint256 _stonesId
+        uint256 _stonesId,
+        uint256 _plantFiberId,
+        uint256 _appleId
     ) {
         avatarAddress = IERC721(_avatarAddress);
-        console.log("Avatar address:");
-        console.log(address(avatarAddress));
         resourceTokenAddress = IResourceToken(_resourceTokenAddress);
-        console.log("Resource token address:");
-        console.log(address(resourceTokenAddress));
         sticksId = _sticksId;
-        console.log("Sticks ID:", sticksId);
         stonesId = _stonesId;
-        console.log("Stones ID:", stonesId);
+        plantFiberId = _plantFiberId;
+        appleId = _appleId;
     }
 
     function sendAvatar(uint256 avatarId) external {
-        console.log("Sender address:", msg.sender);
-        console.log("Avatar ID:", avatarId);
-        console.log(address(avatarAddress));
-        bool isOwner = avatarAddress.ownerOf(avatarId) == msg.sender;
-        console.log("Is sender owner of avatar:", isOwner);
-
-        // If checking for approval directly is relevant
-        bool isApproved = avatarAddress.getApproved(avatarId) ==
-            address(this) ||
-            avatarAddress.isApprovedForAll(msg.sender, address(this));
-        console.log("Contract approved to transfer avatar:", isApproved);
-
-        // Check if the contract is approved to transfer the avatar on behalf of the owner
-        bool isApprovedForAll = avatarAddress.isApprovedForAll(
-            msg.sender,
-            address(this)
-        );
-        bool isDirectlyApproved = avatarAddress.getApproved(avatarId) ==
-            address(this);
-        console.log("Contract approved for all avatars:", isApprovedForAll);
-        console.log(
-            "Contract directly approved for this avatar:",
-            isDirectlyApproved
-        );
-
         require(
             avatarAddress.ownerOf(avatarId) == msg.sender,
             "You do not own this avatar"
         );
 
-        console.log("Transferring avatar from:", msg.sender, "to contract");
         avatarAddress.transferFrom(msg.sender, address(this), avatarId);
-        console.log("Transfer successful");
-
         sessions[msg.sender][avatarId] = block.timestamp;
-        console.log(
-            "Session updated for avatar ID:",
-            avatarId,
-            "at timestamp:",
-            block.timestamp
-        );
 
         emit AvatarEntered(msg.sender, avatarId, block.timestamp);
     }
@@ -105,12 +73,16 @@ contract Wilderness is ReentrancyGuard {
 
         avatarAddress.transferFrom(address(this), msg.sender, avatarId);
 
-        uint256[] memory ids = new uint256[](2);
-        uint256[] memory amounts = new uint256[](2);
+        uint256[] memory ids = new uint256[](4);
+        uint256[] memory amounts = new uint256[](4);
         ids[0] = sticksId;
         amounts[0] = STICKS_AMOUNT;
         ids[1] = stonesId;
         amounts[1] = STONES_AMOUNT;
+        ids[2] = plantFiberId;
+        amounts[2] = PLANTFIBER_AMOUNT;
+        ids[3] = appleId;
+        amounts[3] = APPLE_AMOUNT;
 
         resourceTokenAddress.mintBatch(msg.sender, ids, amounts, "");
 

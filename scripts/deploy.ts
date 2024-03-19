@@ -5,7 +5,9 @@ async function main() {
     process.env.RESOURCE_TOKEN_ADDRESS &&
     process.env.AVATAR_ADDRESS &&
     process.env.STICK_ID &&
-    process.env.STONE_ID
+    process.env.STONE_ID &&
+    process.env.PLANTFIBER_ID &&
+    process.env.APPLE_ID
   ) {
     console.log("Deploying Wilderness... contract-location");
     // const Wilderness = await ethers.getContractFactory("Wilderness");
@@ -14,19 +16,16 @@ async function main() {
       process.env.RESOURCE_TOKEN_ADDRESS,
       process.env.STICK_ID,
       process.env.STONE_ID,
+      process.env.PLANTFIBER_ID,
+      process.env.APPLE_ID,
     ]);
 
-    console.log("waiting for deployment...");
     await wilderness.waitForDeployment();
-    console.log("deployed");
-
-    // add Wilderness to minter_role on resource_token
-    // wilderness.address
 
     console.log("Wilderness deployed to:", wilderness.target);
   } else {
     console.log(
-      "Must set RESOURCE_TOKEN_ADDRESS AVATAR_ADDRESS STICK_ID STONE_ID in .env file"
+      "Must set RESOURCE_TOKEN_ADDRESS AVATAR_ADDRESS STICK_ID STONE_ID PLANTFIBER_ID APPLE_ID in .env file"
     );
   }
 }
